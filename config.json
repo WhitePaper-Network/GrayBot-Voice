@@ -1,0 +1,6 @@
+{
+	"prefix": ">",
+	"token": "Discord Bot Token",
+	"vtapi": "VoiceText API Key",
+	"textlimit": 55
+}
