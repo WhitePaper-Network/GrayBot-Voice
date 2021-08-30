@@ -8,16 +8,14 @@ var dispatcher = null;
 prefix = new RegExp(config.prefix);
 let voiceQueue = new Array();
 client.once("ready", () => {
-	console.log("Started.");
+	console.log("VOICE-SYSTEM Started.");
 });
 
 async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp){
     if(dispatcher == null){
       var voiceConnection = client.voice.connections.first()
       if (voiceConnection) {
-         console.log("shift時:" + voiceQueue.length)
         if(voiceQueue.length>0) voiceQueue.shift();
-        console.log("shift後:" + voiceQueue.length)
         if (text.length > config.textlimit) {
           sliced = text.slice(0, config.textlimit);
           edit = sliced + "、以下略"
@@ -55,15 +53,11 @@ async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp)
                 var date = new Date();
                 var unixTimestamp = date.getTime()
                 if(voiceQueue.length > 0) playVoice(voiceQueue[0],userData.speaker,userData.emotion,userData.emotion_level,userData.pitch,uid,unixTimestamp);
-                console.log(voiceQueue)
-                console.log(voiceQueue.length)
               });
           });
       }
     }else{
         await voiceQueue.push(text);
-        //console.log(voiceQueue)
-        console.log("push時:" + voiceQueue.length)
       }
   }
 
@@ -102,7 +96,6 @@ client.on('message', async message => {
     var userData = data.find((popo)=>popo.user_id == message.author.id)
     if(data.find((popo)=>popo.user_id == message.author.id))
     {
-      console.log("data found")
       if (message.content.match(prefix)) return;
     }
     else
@@ -117,7 +110,6 @@ client.on('message', async message => {
       var userData = data.find((popo)=>popo.user_id == message.author.id)
       fs.writeFileSync("./data.json" , JSON.stringify(data, null, ' '));
       delete require.cache[require.resolve("./data.json")];
-      console.log(`ID:${userData.user_id} ${userData.speaker}`)
       if (message.content.match(prefix)) return;
       
     }
