@@ -1,4 +1,4 @@
-# GreyBot-Voice
+# GrayBot-Voice
 VoiceText Web APIを使ったDiscord通話チャット読み上げボット
 
 こんにちは。WhitePaperデベロッパ、たぽと申します。
