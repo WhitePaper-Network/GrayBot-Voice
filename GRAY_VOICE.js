@@ -134,7 +134,7 @@ client.on('message', async message => {
 	}
 }
 
-  if (message.content == '!voc')
+  if (message.content == config.prefix + 'voc')
   {
     if(datajson.find((popo)=>popo.user_id == message.author.id))
     {
