@@ -57,7 +57,7 @@ async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp,
                 var userData = datajson.find((popo)=>popo.user_id == voiceUID[0])
                 var date = new Date();
                 var unixTimestamp = date.getTime()
-                if(voiceQueue.length > 0) playVoice(voiceQueue[0],userData.speaker,userData.emotion,userData.emotion_level,userData.pitch,uid,unixTimestamp,voiceCon[0]);
+                if(voiceQueue.length > 0) playVoice(voiceQueue[0],userData.speaker,userData.emotion,userData.emotion_level,userData.pitch,voiceUID[0],unixTimestamp,voiceCon[0]);
               });
           });
       }
