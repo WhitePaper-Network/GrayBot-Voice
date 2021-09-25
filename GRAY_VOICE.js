@@ -5,13 +5,12 @@ const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION']
 const config = require("./config.json")
 const datajson = require("./data.json")
 var dispatcher = null;
-var connection;
 prefix = new RegExp(config.prefix);
 let voiceQueue = new Array();
 let voiceCon = new Array();
 let voiceUID = new Array();
 client.once("ready", () => {
-	console.log("Started.");
+	console.log("VOICE-SYSTEM Started.");
 });
 
 async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp,con){
@@ -50,14 +49,14 @@ async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp,
               dispatcher.on('finish', () => {
                 dispatcher = null;
                 try {
-                  //fs.unlinkSync(`./${timestamp}.wav`);
+                  fs.unlinkSync(`./${timestamp}.wav`);
                 } catch (error) {
                   throw error;
                 }
                 var userData = datajson.find((popo)=>popo.user_id == voiceUID[0])
                 var date = new Date();
                 var unixTimestamp = date.getTime()
-                if(voiceQueue.length > 0) playVoice(voiceQueue[0],userData.speaker,userData.emotion,userData.emotion_level,userData.pitch,voiceUID[0],unixTimestamp,voiceCon[0]);
+                if(voiceQueue.length > 0) playVoice(voiceQueue[0],userData.speaker,userData.emotion,userData.emotion_level,userData.pitch,uid,unixTimestamp,voiceCon[0]);
               });
           });
       }
@@ -101,6 +100,28 @@ client.on('message', async message => {
     delete require.cache[require.resolve("./data.json")];
   }
   var guildData = datajson.find((popo)=>popo.guild_id == message.guild.id)
+  if (message.content == config.prefix + 'voc')
+  {
+    if(datajson.find((popo)=>popo.user_id == message.author.id))
+    {
+      var speakernum = Math.floor( Math.random() * 5 );
+      var emotionnum = Math.floor( Math.random() * 3 );
+      var emotion_level = 1 + Math.floor( Math.random() * 4 );
+      var pitch = 50 + Math.floor( Math.random() * 150 );
+      const speaker = ["haruka","hikari","takeru","santa","bear"]
+      const emotion = ["happiness","anger","sadness"]
+      var userData = datajson.find((popo)=>popo.user_id == message.author.id)
+      userData.speaker = speaker[speakernum]
+      userData.emotion = emotion[emotionnum]
+      userData.emotion_level = emotion_level 
+      userData.pitch = pitch
+      message.channel.send("声をかえてみたよ！")
+    }
+    else
+    {
+      message.channel.send("ぷろふぃーるなくない？一回ボクを呼んでから喋ってみてね！")
+    }
+  }
   if (datajson.find((popo)=>popo.guild_id == message.guild.id))
   {
 	if (message.channel.id === guildData.speak_channel) {
@@ -133,28 +154,5 @@ client.on('message', async message => {
     await playVoice(message.content,userData.speaker,userData.emotion,userData.emotion_level,userData.pitch,message.author.id,unixTimestamp,con)
 	}
 }
-
-  if (message.content == config.prefix + 'voc')
-  {
-    if(datajson.find((popo)=>popo.user_id == message.author.id))
-    {
-      var speakernum = Math.floor( Math.random() * 5 );
-      var emotionnum = Math.floor( Math.random() * 3 );
-      var emotion_level = 1 + Math.floor( Math.random() * 4 );
-      var pitch = 50 + Math.floor( Math.random() * 150 );
-      const speaker = ["haruka","hikari","takeru","santa","bear"]
-      const emotion = ["happiness","anger","sadness"]
-      var userData = datajson.find((popo)=>popo.user_id == message.author.id)
-      userData.speaker = speaker[speakernum]
-      userData.emotion = emotion[emotionnum]
-      userData.emotion_level = emotion_level 
-      userData.pitch = pitch
-      message.channel.send("声をかえてみたよ！")
-    }
-    else
-    {
-      message.channel.send("ぷろふぃーるなくない？一回ボクを呼んでから喋ってみてね！")
-    }
-  }
 });
 client.login(config.token)
