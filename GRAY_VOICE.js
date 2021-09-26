@@ -5,12 +5,18 @@ const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION']
 const config = require("./config.json")
 const datajson = require("./data.json")
 var dispatcher = null;
+var connection;
 prefix = new RegExp(config.prefix);
 let voiceQueue = new Array();
 let voiceCon = new Array();
 let voiceUID = new Array();
 client.once("ready", () => {
-	console.log("VOICE-SYSTEM Started.");
+  console.log('VOICE_SYSTEM Started.')
+  setInterval(() => {
+    client.user.setActivity({
+      name: `${config.prefix}help | ${client.guilds.cache.size}servers`
+    })
+  }, 5000)
 });
 
 async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp,con){
@@ -72,7 +78,7 @@ async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp,
 client.on('message', async message => {
   if(message.author.bot) return;
   const voiceChannel = message.member.voice.channel;
-	if (message.content === config.prefix + 'join') {
+	if (message.content == `${config.prefix}join`) {
     if (!voiceChannel) return message.channel.send("あれー？あなたボイスチャンネル、入ってなくなーい？")
     if(datajson.find((popo)=>popo.guild_id == message.guild.id))
     {
@@ -90,7 +96,7 @@ client.on('message', async message => {
     message.channel.send("やっほー")
 		connection = message.member.voice.channel.join()
 	}
-  if (message.content === config.prefix + 'leave') {
+  if (message.content == `${config.prefix}leave`) {
     if (!voiceChannel) return message.channel.send("あれー？あなたボイスチャンネル、入ってなくなーい？")
     message.channel.send("ばいばーい")
 		message.member.guild.voice.channel.leave()
@@ -100,7 +106,7 @@ client.on('message', async message => {
     delete require.cache[require.resolve("./data.json")];
   }
   var guildData = datajson.find((popo)=>popo.guild_id == message.guild.id)
-  if (message.content == config.prefix + 'voc')
+  if (message.content == `${config.prefix}voc`)
   {
     if(datajson.find((popo)=>popo.user_id == message.author.id))
     {
@@ -121,6 +127,50 @@ client.on('message', async message => {
     {
       message.channel.send("ぷろふぃーるなくない？一回ボクを呼んでから喋ってみてね！")
     }
+  }
+  if (message.content == `${config.prefix}help`)
+  {
+    message.channel.send(
+      {embed: {
+        title: "ヘルプ",
+        color: 0x2ecc71,
+        footer: {
+          icon_url: client.user.avatarURL,
+          text: `GrayBot | ${client.ws.ping}ms`
+        },
+        fields: [
+          {
+            name: `${config.prefix}join`,
+            value: "ボイスチャンネルにボットを参加させるよ。",
+            inline: true
+          },
+          {
+            name: `${config.prefix}leave`,
+            value: "ボイスチャンネルからボットを退出させるよ。",
+            inline: true
+          },
+          {
+            name: `${config.prefix}voc`,
+            value: "読み上げる声を変更するよ。",
+            inline: true
+          },
+          {
+            name: `${config.prefix}invite`,
+            value: "ボットの招待リンクを送信するよ。",
+            inline:true,
+          },
+        ]
+      }}
+    );
+  }
+  if (message.content == `${config.prefix}invite`)
+  {
+    message.channel.send(
+      {embed: {
+        title: "BOT招待リンク",
+        description:"Botを招待するには、[こちら](https://discord.com/api/oauth2/authorize?client_id=876646496945205308&permissions=8&scope=bot) もしくは以下のリンクをクリックしてください。  https://discord.com/api/oauth2/authorize?client_id=876646496945205308&permissions=8&scope=bot"
+      }}
+    )
   }
   if (datajson.find((popo)=>popo.guild_id == message.guild.id))
   {
