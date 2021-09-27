@@ -31,6 +31,8 @@ async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp,
           edit = sliced + "、以下略"
       } else edit = text
       if (text.includes('http')) edit = 'ユーアールエル省略'
+      edit = edit.replace('　', "、")
+      edit = edit.replace(' ', "、")
       const outFile = await fs.createWriteStream(`./${timestamp}.wav`);
       const data = `text=${edit}&speaker=${speaker}&emotion=${emotion}&emotion_level=${emotion_level}&pitch=${pitch}&speed=110`;
       const options = {
