@@ -1,6 +1,6 @@
 # GrayBot-Voice
 VoiceText Web APIを使ったDiscord通話チャット読み上げボット
-
+　
 こんにちは。WhitePaperです。
 GreyBot-Voiceは、簡単にDiscord通話チャットの読み上げを行うため、一味違った声を生成できる、VoiceText Web APIを使って作られたDiscord.jsボットです。  
 
