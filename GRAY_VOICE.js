@@ -32,7 +32,7 @@ async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp,
       } else edit = text
       edit = text.replace(/https?:\/\/\S+/g, '');
       const url = text.match(/https?:\/\/\S+/);
-      if(url) edit = `URL省略${text}`;
+      if(url) edit = `URL省略${edit}`;
       edit = edit.replace('　', "、")
       edit = edit.replace(' ', "、")
       const outFile = await fs.createWriteStream(`./${timestamp}.wav`);
