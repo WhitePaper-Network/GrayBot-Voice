@@ -1,0 +1,16 @@
+{
+  "name": "slash-command-add",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "dependencies": {
+    "node-fetch": "^3.0.0",
+    "node-fetch-commonjs": "^3.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

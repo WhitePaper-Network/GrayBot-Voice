@@ -17,7 +17,150 @@ client.once("ready", () => {
       name: `${config.prefix}help | ${client.guilds.cache.size}servers`
     })
   }, 5000)
-});
+  });
+  client.ws.on('INTERACTION_CREATE', async interaction => {
+    if (interaction.data.options[0].value === 'join')
+    {
+      let guild = client.guilds.cache.get(interaction.guild_id)
+      let user = guild.members.cache.get(interaction.member.user.id)
+      if (!user.voice.channel)
+      {
+        client.api.interactions(interaction.id, interaction.token).callback.post({
+          data: {
+          type: 4,
+          data: {
+            content: `ボイスチャンネルに参加してから実行してねっ！`
+          }
+        }
+      })
+      return;
+      }
+      if(datajson.find((popo)=>popo.guild_id == interaction.guild_id))
+      {
+        var guildData = datajson.find((popo)=>popo.guild_id == interaction.guild_id)
+        guildData.speak_channel = interaction.channel_id
+        fs.writeFileSync("./data.json" , JSON.stringify(datajson, null, ' '));
+        delete require.cache[require.resolve("./data.json")];
+      }
+      else 
+      {
+        datajson.push({"guild_id":interaction.guild_id,"speak_channel":interaction.channel_id});
+        fs.writeFileSync("./data.json" , JSON.stringify(datajson, null, ' '));
+        delete require.cache[require.resolve("./data.json")];
+      }
+      user.voice.channel.join()
+      client.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+        type: 4,
+        data: {
+          content: `やっほー！`
+        }
+      }
+    })
+    }
+    else if (interaction.data.options[0].value === 'leave')
+    {
+      let guild = client.guilds.cache.get(interaction.guild_id)
+      let user = guild.members.cache.get(interaction.member.user.id)
+      if (!user.voice.channel)
+      {
+        client.api.interactions(interaction.id, interaction.token).callback.post({
+          data: {
+          type: 4,
+          data: {
+            content: `ボイスチャンネルに参加してから実行してねっ！`
+          }
+        }
+      })
+      return;
+      }
+      user.voice.channel.leave()
+      var guildData = datajson.find((popo)=>popo.guild_id == interaction.guild_id)
+      guildData.speak_channel = null
+      fs.writeFileSync("./data.json" , JSON.stringify(datajson, null, ' '));
+      delete require.cache[require.resolve("./data.json")];
+      client.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+        type: 4,
+        data: {
+          content: `さよーならー！`
+        }
+      }
+    })
+    }
+    else if (interaction.data.options[0].value === 'voc')
+    {
+      if(datajson.find((popo)=>popo.user_id == interaction.member.user.id))
+      {
+        var speakernum = Math.floor( Math.random() * 5 );
+        var emotionnum = Math.floor( Math.random() * 3 );
+        var emotion_level = 1 + Math.floor( Math.random() * 4 );
+        var pitch = 50 + Math.floor( Math.random() * 150 );
+        const speaker = ["haruka","hikari","takeru","santa","bear"]
+        const emotion = ["happiness","anger","sadness"]
+        var userData = datajson.find((popo)=>popo.user_id == interaction.member.user.id)
+        userData.speaker = speaker[speakernum]
+        userData.emotion = emotion[emotionnum]
+        userData.emotion_level = emotion_level 
+        userData.pitch = pitch
+        client.api.interactions(interaction.id, interaction.token).callback.post({
+          data: {
+          type: 4,
+          data: {
+            content: `声をかえてみたよ～っ！`
+          }
+        }
+      })
+      }
+      else
+      {
+        client.api.interactions(interaction.id, interaction.token).callback.post({
+          data: {
+          type: 4,
+          data: {
+            content: `うーん..データがないみたい...一度ボクを呼んでから喋ってくれるかな？`
+          }
+        }
+      })
+      }
+    }
+    else if (interaction.data.options[0].value === 'help')
+    {
+      const helpembed = new Discord.MessageEmbed()
+        .setTitle('ヘルプ')
+        .setColor(0x2ecc71)
+        .setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
+        .addFields(
+          {name: `${config.prefix}join`, value: 'ボイスチャンネルにボットを参加させるよ。', inline: true },
+          {name: `${config.prefix}leave`, value: 'ボイスチャンネルにからボットを退出させるよ。', inline: true },
+          {name: `${config.prefix}voc`, value: '読み上げる声を変更するよ。', inline: true },
+          {name: `${config.prefix}invite`, value: 'ボットの招待リンクを送信するよ。', inline: true },
+          {name: `${config.prefix}help`, value: 'このヘルプ画面を送信するよ。', inline: true },
+        )
+        client.api.interactions(interaction.id, interaction.token).callback.post({
+          data: {
+          type: 4,
+          data: {
+            embeds: [helpembed]
+          }
+        }
+      })
+    }
+    else if (interaction.data.options[0].value === 'invite')
+    {
+      const inviteembed = new Discord.MessageEmbed()
+        .setTitle('BOT招待リンク')
+        .setDescription(`Botを招待するには、[こちら](https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=8&scope=bot) \n もしくは以下のリンクをクリックしてください。  https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=8&scope=bot`)
+        client.api.interactions(interaction.id, interaction.token).callback.post({
+          data: {
+          type: 4,
+          data: {
+            embeds: [inviteembed]
+          }
+        }
+      })
+    }
+  });
 
 async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp,con){
     if(dispatcher == null){
@@ -172,7 +315,7 @@ client.on('message', async message => {
     message.channel.send(
       {embed: {
         title: "BOT招待リンク",
-        description:"Botを招待するには、[こちら](https://discord.com/api/oauth2/authorize?client_id=876646496945205308&permissions=8&scope=bot) もしくは以下のリンクをクリックしてください。  https://discord.com/api/oauth2/authorize?client_id=876646496945205308&permissions=8&scope=bot"
+        description:"Botを招待するには、[こちら](https://discord.com/api/oauth2/authorize?client_id=876646496945205308&permissions=8&scope=bot) \n もしくは以下のリンクをクリックしてください。  https://discord.com/api/oauth2/authorize?client_id=876646496945205308&permissions=8&scope=bot"
       }}
     )
   }
