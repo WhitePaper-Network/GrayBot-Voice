@@ -150,7 +150,7 @@ client.once("ready", () => {
     {
       const inviteembed = new Discord.MessageEmbed()
         .setTitle('BOT招待リンク')
-        .setDescription(`Botを招待するには、[こちら](https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=8&scope=bot) \n もしくは以下のリンクをクリックしてください。  https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=8&scope=bot`)
+        .setDescription(`Botを招待するには、[こちら](https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=3164160&scope=bot%20applications.commands) \n もしくは以下のリンクをクリックしてください。  https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=3164160&scope=bot%20applications.commands`)
         client.api.interactions(interaction.id, interaction.token).callback.post({
           data: {
           type: 4,
@@ -315,7 +315,7 @@ client.on('message', async message => {
     message.channel.send(
       {embed: {
         title: "BOT招待リンク",
-        description:"Botを招待するには、[こちら](https://discord.com/api/oauth2/authorize?client_id=876646496945205308&permissions=8&scope=bot) \n もしくは以下のリンクをクリックしてください。  https://discord.com/api/oauth2/authorize?client_id=876646496945205308&permissions=8&scope=bot"
+        description:`Botを招待するには、[こちら](https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=3164160&scope=bot%20applications.commands) \n もしくは以下のリンクをクリックしてください。  https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=3164160&scope=bot%20applications.commands`
       }}
     )
   }
