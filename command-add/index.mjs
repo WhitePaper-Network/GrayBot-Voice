@@ -1,6 +1,5 @@
 import fetch from 'node-fetch';
-const apiEndpoint = 'https://discord.com/api/v8/applications/876646496945205308/guilds/852882007221731359/commands'
-//892589903148372008
+const apiEndpoint = 'https://discord.com/api/v8/applications/bot user id here/commands
 const botToken = 'bot token here'
 const commandData = {
   "name": "gray",
