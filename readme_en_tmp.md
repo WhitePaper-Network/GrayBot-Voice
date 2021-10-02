@@ -7,4 +7,4 @@
 - `Host this bot yourself`
 
 ## Notification
-Please note that the operating organization White Paper and its related parties are not responsible for any damage caused by using this program and bots.
+Please note that the operating organization WhitePaper and its related parties are not responsible for any damage caused by using this program and bots.
