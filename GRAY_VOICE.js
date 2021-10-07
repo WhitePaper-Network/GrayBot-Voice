@@ -35,6 +35,7 @@ async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp,
       if(url) edit = `URL省略${edit}`;
       edit = edit.replace('　', "、")
       edit = edit.replace(' ', "、")
+      if(message.attachments.size) edit = message.author.username + 'が添付ファイルを送信しました。' + edit
       const outFile = await fs.createWriteStream(`./${timestamp}.wav`);
       const data = `text=${edit}&speaker=${speaker}&emotion=${emotion}&emotion_level=${emotion_level}&pitch=${pitch}&speed=110`;
       const options = {
