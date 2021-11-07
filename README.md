@@ -1,6 +1,6 @@
 # GrayBot-Voice
 
-**GreyBot-Voice** は、簡単にDiscord通話チャットの読み上げを行うため、一味違った声を生成できる、  
+**GrayBot-Voice** は、簡単にDiscord通話チャットの読み上げを行うため、一味違った声を生成できる、  
 VoiceText Web APIを使って作られたDiscordのBotです。  
 
 このボットは、二つの方法で使用することができます。
