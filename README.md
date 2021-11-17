@@ -2,7 +2,7 @@
 
 **Graybot-Voice** is TTS bot using VoiceText Web API on Discord.
 
-##Setup
+## Setup
 
 1. npm i
 2. edit ./config.json
