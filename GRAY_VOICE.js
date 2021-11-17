@@ -53,6 +53,7 @@ async function editText(text) {
 	texttmp = texttmp.replace('　', "、");
 	texttmp = texttmp.replace(' ', "、");
 	//todo: dictionary read / replace function
+	return texttmp;
 }
 
 
@@ -64,7 +65,7 @@ async function playVoice(text,speaker,emotion,emotion_level,pitch,uid,timestamp,
 			if(voiceQueue.length>0) voiceQueue.shift();
 			if(voiceCon.length>0) voiceCon.shift();
 			if(voiceUID.length>0) voiceUID.shift();
-			const edit = editText(text);
+			const edit = await editText(text);
 			const data = `text=${edit}&speaker=${speaker}&emotion=${emotion}&emotion_level=${emotion_level}&pitch=${pitch}&speed=110`;
 			const options = {
 				url: 'https://api.voicetext.jp/v1/tts',
