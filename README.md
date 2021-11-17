@@ -1,13 +1,12 @@
 # GrayBot-Voice
 
-**GrayBot-Voice** は、簡単にDiscord通話チャットの読み上げを行うため、一味違った声を生成できる、  
-VoiceText Web APIを使って作られたDiscordのBotです。  
+**Graybot-Voice**は、全く新しいTTS Botです。 このボットは、声の種類が豊富なVoiceText Web APIを使ったボットです。
 
-このボットは、二つの方法で使用することができます。
-- `WhitePaper公式がホストしているBotを利用する`
-- `自分でBotをホストする`  
-どちらも[こちらの記事](https://qiita.com/Tapo0825/items/fd580d0bdd8cdd66b490)でやり方を説明しておりますので、ぜひ御覧ください
-## 注意
-※本プログラム及びボットを使用したことで何か損害が発生しても、  
-運営組織WhitePaper及びその関係者は一切の責任を負いませんのでご了承ください。
- 
+## セットアップ
+
+1. npm i
+2. edit ./config.json
+3. node GRAY_VOICE.js
+
+## Notification
+運営組織であるWhitePaper及びそれに関連するメンバーは、Apache License 2.0のとおり、このプログラム・ボットの使用によって生じたいかなる損害についても責任を負いません。
