@@ -1,6 +1,6 @@
 # GrayBot-Voice
 
-**Graybot-Voice**は、全く新しいTTS Botです。 このボットは、声の種類が豊富なVoiceText Web APIを使っています。
+**GrayBot-Voice**は、全く新しいTTS Botです。 このボットは、声の種類が豊富なVoiceText Web APIを使っています。
 
 ## セットアップ
 
