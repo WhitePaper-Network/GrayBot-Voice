@@ -1,6 +1,6 @@
 # GrayBot-Voice
 
-**GrayBot-Voice** is TTS bot using VoiceText Web API on Discord.
+**GrayBot-Voice** is a TTS bot using VoiceText Web API for Discord.
 
 ## Setup
 
