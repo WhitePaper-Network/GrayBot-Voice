@@ -133,6 +133,29 @@ async function dictTimeout(editMsg, flag1, flag2) {
 	return;
 }
 
+async function awaitMsgResponse(channel, filter) {
+	return new Promise(async (resolve, reject) => {
+		channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).then(async collected => {
+			const content = collected.first().content;
+			collected.first().delete();
+			resolve(content)
+		})
+	})
+}
+
+
+async function awaitReactResponse(message, filter) {
+	return new Promise(async (resolve, reject) => {
+		message.awaitReactions({ filter, max: 1, time: 20000, errors: ['time'] }).then(async collected => {
+			const reaction = collected.first()
+			message.reactions.removeAll()
+			resolve(reaction)
+		}).catch(collected => {
+			resolve(null)
+		})
+	})
+}
+
 client.on('interactionCreate', async interaction => {
 	const commandName = interaction.options._hoistedOptions[0].value
 	await interaction.deferReply();
@@ -194,12 +217,12 @@ client.on('interactionCreate', async interaction => {
 			.setColor(0x2ecc71)
 			.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
 			.addFields(
-				{name: `${config.prefix}join`, value: 'ボイスチャンネルにボットを参加させるよ。', inline: true },
-				{name: `${config.prefix}leave`, value: 'ボイスチャンネルにからボットを退出させるよ。', inline: true },
-				{name: `${config.prefix}voc`, value: '読み上げる声を変更するよ。', inline: true },
-				{name: `${config.prefix}invite`, value: 'ボットの招待リンクを送信するよ。', inline: true },
-				{name: `${config.prefix}help`, value: 'このヘルプ画面を送信するよ。', inline: true },
-				{name: `${config.prefix}dicedit`, value: "辞書を確認/編集するよ。", inline: true}
+				{name: `/gray join`, value: 'ボイスチャンネルにボットを参加させるよ。', inline: true },
+				{name: `/gray leave`, value: 'ボイスチャンネルにからボットを退出させるよ。', inline: true },
+				{name: `/gray voc`, value: '読み上げる声を変更するよ。', inline: true },
+				{name: `/gray invite`, value: 'ボットの招待リンクを送信するよ。', inline: true },
+				{name: `/gray help`, value: 'このヘルプ画面を送信するよ。', inline: true },
+				{name: `/gray dicedit`, value: "辞書を確認/編集するよ。", inline: true}
 			)
 		interaction.editReply({embeds: [helpembed] })
 	}
@@ -223,179 +246,152 @@ client.on('interactionCreate', async interaction => {
 		embed.setDescription('実行したい操作を選択してください\n:one::登録内容を確認する\n:two::辞書内容を編集する')
 		const checkmsg = await interaction.editReply({embeds: [embed]})
 		await checkmsg.react('1️⃣').then(checkmsg.react('2️⃣'))
-		const emojfilterminus1 = (reaction, user) => {
+		let emojfilter = (reaction, user) => {
 			return (reaction.emoji.name == '1️⃣' || reaction.emoji.name == '2️⃣') && user.id === interaction.user.id;
 		};
-		checkmsg.awaitReactions({filter: emojfilterminus1, max: 1, time: 20000, errors: ['time'] }).then(async collectedminus1 => {
-			let reaction = collectedminus1.first()
-			await checkmsg.reactions.removeAll()
+		let reaction = await awaitReactResponse(checkmsg, emojfilter)
+		if(reaction == null) return dictTimeout(checkmsg, 1, 1);
+		if(reaction.emoji.name == '1️⃣') {
+			let embDesc;
+			const dict = new sqlite3.Database("./dictionary.db");
+			const selectdict = 'select * from dict;'
+			await dict.all(selectdict, async (err, rows) => {
+				if (err) {
+					throw err;
+				}
+				let i = 0;
+				for (const row of rows) {
+					if(interaction.guildId === row.serverId) {
+						if(i==0) {
+							embDesc = row.textfrom + ' → ' + row.textto
+							i++;
+						} else {
+							embDesc = embDesc + '\n' + row.textfrom + ' → ' + row.textto
+						}
+					}
+				};
+				if(!embDesc) embDesc = '辞書には何もありませんでした...'
+				await dict.close();
+				const dictcheckembed = new Discord.MessageEmbed()
+					.setTitle('現在の登録内容')
+					.setDescription(embDesc)
+					.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
+				await interaction.editReply({embeds: [dictcheckembed]})
+				dictEditFlag = false;
+				return;
+			})
+		}
+		if(reaction.emoji.name == '2️⃣') {
+			embed.setDescription('実行したい操作を選択してください\n:one::辞書に登録する\n:two::辞書から削除する')
+			checkmsg.edit({embeds: [embed]})
+			await checkmsg.react('1️⃣').then(checkmsg.react('2️⃣'))
+			reaction = await awaitReactResponse(checkmsg, emojfilter)
+			if(reaction == null) return dictTimeout(checkmsg, 1, 1);
 			if(reaction.emoji.name == '1️⃣') {
-				let embDesc;
+				embed.setDescription('読み上げ方を変更したい単語を送信してください')
+				await interaction.editReply({embeds: [embed]})
+				let channel = await client.channels.cache.get(interaction.channelId)
+				let filter = m => m.author.id == interaction.member.user.id;
+				
+				let text1 = await awaitMsgResponse(channel, filter)
+				if(text1 == null) dictTimeout(checkmsg, 1, 0)
+				if(text1.length > config.textlimit) text1 = text1.slice(0, config.textlimit)
+				embed.setDescription(`単語:${text1}\n読み上げ方を送信してください`)
+				await interaction.editReply({embeds: [embed]})
+				let text2 = await awaitMsgResponse(channel, filter)
+				if(text2 == null) dictTimeout(checkmsg, 1, 0)
+				if(text2.length > config.textlimit) text2 = text2.slice(0, config.textlimit)
+				await interaction.deleteReply();
+				let embed2 = dictembedbase
+				embed2.addField(`単語:${text1}`, `**読み:${text2}**`)
+				embed2.addField(`上記の通りで登録します。`,`よろしければ、:ok:を押してください。よろしくなければ、:ng:を押すとキャンセルできます。`)
+				const message = await interaction.channel.send({embeds: [embed2]})
+				message.react('🆗').then(message.react('🆖'))
+				emojfilter = (reaction, user) => {
+					return (reaction.emoji.name == '🆗' || reaction.emoji.name == '🆖') && user.id === interaction.user.id;
+				};
+				reaction = await awaitReactResponse(message, emojfilter)
+				if(reaction == null) return dictTimeout(checkmsg, 1, 1);
+				if(reaction.emoji.name == '🆗') {
+					const dict = new sqlite3.Database("./dictionary.db");
+					await dict.run(`insert into dict(serverId,textfrom,textto) values(?,?,?)`, interaction.guildId, text1, text2)
+					await dict.close()
+					let embed3 = new Discord.MessageEmbed()
+						.setTitle('登録完了')
+						.setDescription('正常に登録しました。')
+						.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
+					await message.edit({embeds: [embed3]})
+					dictEditFlag = false;
+					return;
+				} else {
+					if(reaction.emoji.name == '🆖') {
+						dictTimeout(message, 0, 1)
+					}
+				}	
+			}
+			if(reaction.emoji.name == '2️⃣') {
+				dictEditFlag = false;
 				const dict = new sqlite3.Database("./dictionary.db");
+				let embDesc;
+				let textcheck;
+				let dicts = new Array;
 				const selectdict = 'select * from dict;'
 				await dict.all(selectdict, async (err, rows) => {
 					if (err) {
 						throw err;
 					}
-					let i = 0;
+					let i = 0
 					for (const row of rows) {
 						if(interaction.guildId === row.serverId) {
 							if(i==0) {
+								textcheck = row.textfrom
 								embDesc = row.textfrom + ' → ' + row.textto
 								i++;
 							} else {
+								textcheck = textcheck + row.textfrom
 								embDesc = embDesc + '\n' + row.textfrom + ' → ' + row.textto
 							}
 						}
 					};
-					if(!embDesc) embDesc = '辞書には何もありませんでした...'
-					await dict.close();
-					const dictcheckembed = new Discord.MessageEmbed()
-						.setTitle('現在の登録内容')
-						.setDescription(embDesc)
+					if(!embDesc) {
+						let embed4 = new Discord.MessageEmbed()
+							.setTitle('辞書編集(β)')
+							.setDescription('辞書には何もありませんでした...')
+							.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
+						checkmsg.edit({embeds: [embed4]})
+						return;
+					};
+					let embed4 = new Discord.MessageEmbed()
+						.setTitle('削除したい項目の変換元の単語をを送信してください')
 						.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
-					await interaction.editReply({embeds: [dictcheckembed]})
-					dictEditFlag = false;
-					return;
+						.setDescription(embDesc)
+					checkmsg.edit({embeds: [embed4]})
+					let delfilter = m => m.author.id == interaction.member.user.id;
+					let channel = await client.channels.cache.get(interaction.channelId)
+					let textfrom = await awaitMsgResponse(channel, delfilter)
+					if(textfrom == null) dictTimeout(checkmsg, 1, 0)
+					if(!textcheck.includes(textfrom)) {
+						collectedfour.first().delete()
+						let embed45 = new Discord.MessageEmbed()
+							.setTitle('辞書編集(β)')
+							.setDescription('送信された単語を辞書から発見できませんでした。\nもう一度確認してからやり直してください。')
+							.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
+						checkmsg.edit({embeds: [embed45]})
+						return;
+					}
+					await dict.run('DELETE FROM dict WHERE textfrom = ?', textfrom, err => {
+						if (err) {
+							return console.error(err.message);
+						}
+					});
+					await dict.close();
+					let embed5 = new Discord.MessageEmbed()
+						.setTitle('削除に成功しました')
+						.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
+					checkmsg.edit({embeds: [embed5]})
 				})
 			}
-			
-			if(reaction.emoji.name == '2️⃣') {
-				embed.setDescription('実行したい操作を選択してください\n:one::辞書に登録する\n:two::辞書から削除する')
-				checkmsg.edit({embeds: [embed]})
-				await checkmsg.react('1️⃣').then(checkmsg.react('2️⃣'))
-				checkmsg.awaitReactions({filter: emojfilterminus1, max: 1, time: 20000, errors: ['time'] }).then(async collectedzero => {
-					checkmsg.reactions.removeAll();
-					reaction = collectedzero.first()
-					if(reaction.emoji.name == '1️⃣') {
-							embed.setDescription('読み上げ方を変更したい単語を送信してください')
-						await interaction.editReply({embeds: [embed]})
-						let channel = await client.channels.cache.get(interaction.channelId)
-						let filter = m => m.author.id == interaction.member.user.id;
-						interaction.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).then(async collected => {
-							let text1 = collected.first().content.toLowerCase();
-							if(text1.length > config.textlimit) text1 = text1.slice(0, config.textlimit)
-							await collected.first().delete();
-								embed.setDescription(`単語:${text1}\n読み上げ方を送信してください`)
-							await interaction.editReply({embeds: [embed]})
-							interaction.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).then(async collected2 => {
-								let text2 = collected2.first().content.toLowerCase();
-								if(text2.length > config.textlimit) text2 = text2.slice(0, config.textlimit)
-								await collected2.first().delete();
-								await interaction.deleteReply();
-								let embed2 = dictembedbase
-									embed2.addField(`単語:${text1}`, `**読み:${text2}**`)
-									embed2.addField(`上記の通りで登録します。`,`よろしければ、:ok:を押してください。よろしくなければ、:ng:を押すとキャンセルできます。`)
-								const message = await interaction.channel.send({embeds: [embed2]})
-								message.react('🆗').then(message.react('🆖'))
-								const emojfilter = (reaction, user) => {
-									return (reaction.emoji.name == '🆗' || reaction.emoji.name == '🆖') && user.id === interaction.user.id;
-								};
-								message.awaitReactions({filter: emojfilter, max: 1, time: 30000, errors: ['time'] }).then(async collected3 => {
-									reaction = collected3.first()
-									if(reaction.emoji.name == '🆗') {
-										message.reactions.removeAll()
-										const dict = new sqlite3.Database("./dictionary.db");
-										await dict.run(`insert into dict(serverId,textfrom,textto) values(?,?,?)`, interaction.guildId, text1, text2)
-										await dict.close()
-										let embed3 = new Discord.MessageEmbed()
-											.setTitle('登録完了')
-											.setDescription('正常に登録しました。')
-											.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
-										await message.edit({embeds: [embed3]})
-										dictEditFlag = false;
-										return;
-									} else {
-										if(reaction.emoji.name == '🆖') {
-											dictTimeout(message, 0, 1)
-										}
-									}	
-								}).catch(collected3 => {
-									dictTimeout(checkmsg, 1, 1)
-								})
-							}).catch(collected => {
-								dictTimeout(checkmsg, 1, 0)
-							})
-						}).catch(collected => {
-							dictTimeout(checkmsg, 1, 0)
-						})
-					}
-					if(reaction.emoji.name == '2️⃣') {
-						dictEditFlag = false;
-						checkmsg.reactions.removeAll();
-						let embDesc;
-						let textcheck;
-						let dicts = new Array;
-						const dict = new sqlite3.Database("./dictionary.db");
-						const selectdict = 'select * from dict;'
-						await dict.all(selectdict, async (err, rows) => {
-							if (err) {
-								throw err;
-							}
-							let i = 0
-							for (const row of rows) {
-								if(interaction.guildId === row.serverId) {
-									if(i==0) {
-										textcheck = row.textfrom
-										embDesc = row.textfrom + ' → ' + row.textto
-										i++;
-									} else {
-										textcheck = textcheck + row.textfrom
-										embDesc = embDesc + '\n' + row.textfrom + ' → ' + row.textto
-									}
-								}
-							};
-							await dict.close();
-							if(!embDesc) {
-								let embed4 = new Discord.MessageEmbed()
-								.setTitle('辞書編集(β)')
-								.setDescription('辞書には何もありませんでした...')
-								.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
-								checkmsg.edit({embeds: [embed4]})
-								return
-							}
-							
-							let embed4 = new Discord.MessageEmbed()
-								.setTitle('削除したい項目の変換元の単語をを送信してください')
-								.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
-								.setDescription(embDesc)
-							checkmsg.edit({embeds: [embed4]})
-							let delfilter = m => m.author.id == interaction.member.user.id;
-							interaction.channel.awaitMessages({ filter: delfilter, max: 1, time: 30000, errors: ['time'] }).then(async collectedfour => {
-								const textfrom = collectedfour.first().content.toLowerCase();
-								if(!textcheck.includes(textfrom)) {
-									collectedfour.first().delete()
-									let embed45 = new Discord.MessageEmbed()
-										.setTitle('辞書編集(β)')
-										.setDescription('送信された単語を辞書から発見できませんでした。\nもう一度確認してからやり直してください。')
-										.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
-									checkmsg.edit({embeds: [embed45]})
-									return;
-								}
-								const dict = new sqlite3.Database("./dictionary.db");
-								await dict.run('DELETE FROM dict WHERE textfrom = ?', textfrom, err => {
-									if (err) {
-										return console.error(err.message);
-									}
-								});
-								await dict.close();
-								collectedfour.first().delete()
-								let embed5 = new Discord.MessageEmbed()
-									.setTitle('削除に成功しました')
-									.setFooter(`GrayBot | ${client.ws.ping}ms`, client.user.avatarURL)
-								checkmsg.edit({embeds: [embed5]})
-							}).catch(collected => {
-								dictTimeout(checkmsg, 1, 0)
-							})
-						})
-					}
-				}).catch(collected3 => {
-					dictTimeout(checkmsg, 1, 0)
-				})
-			}
-		}).catch(collected => {
-			dictTimeout(checkmsg, 1, 1)
-		})
+		}
 	}
 });
 
