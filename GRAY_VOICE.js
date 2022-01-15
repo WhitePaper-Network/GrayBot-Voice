@@ -139,6 +139,8 @@ async function awaitMsgResponse(channel, filter) {
 			const content = collected.first().content;
 			collected.first().delete();
 			resolve(content)
+		}).catch(collected => {
+			resolve(null)
 		})
 	})
 }
