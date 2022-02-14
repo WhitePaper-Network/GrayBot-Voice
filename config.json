@@ -2,5 +2,6 @@
 	"prefix": ">",
 	"token": "Discord Bot Token",
 	"vtapi": "VoiceText API Key",
+	"botowner": "Bot Owner userID",
 	"textlimit": 55
 }
