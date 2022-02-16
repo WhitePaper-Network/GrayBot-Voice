@@ -43,7 +43,7 @@ client.once("ready", async () => {
 	await dict.close()
 	setInterval(() => {
 		client.user.setActivity({
-			name: `/gray | ${client.guilds.cache.size}servers`
+			name: `/gray | ${client.guilds.cache.size}servers / Copyright 2021 WhitePaper`
 		})
 	}, 5000)
 });
