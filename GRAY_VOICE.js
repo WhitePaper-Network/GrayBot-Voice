@@ -296,12 +296,12 @@ client.on('interactionCreate', async interaction => {
 				let filter = m => m.author.id == interaction.member.user.id;
 				
 				let text1 = await awaitMsgResponse(channel, filter)
-				if(text1 == null) dictTimeout(checkmsg, 1, 0)
+				if(text1 == null) return dictTimeout(checkmsg, 1, 0);
 				if(text1.length > config.textlimit) text1 = text1.slice(0, config.textlimit)
 				embed.setDescription(`単語:${text1}\n読み上げ方を送信してください`)
 				await interaction.editReply({embeds: [embed]})
 				let text2 = await awaitMsgResponse(channel, filter)
-				if(text2 == null) dictTimeout(checkmsg, 1, 0)
+				if(text2 == null) return dictTimeout(checkmsg, 1, 0);
 				if(text2.length > config.textlimit) text2 = text2.slice(0, config.textlimit)
 				await interaction.deleteReply();
 				let embed2 = dictembedbase
@@ -326,11 +326,9 @@ client.on('interactionCreate', async interaction => {
 					dictEditFlag = false;
 					return;
 				} else {
-					if(reaction.emoji.name == '🆖') {
-						dictTimeout(message, 0, 1)
-					}
-				}	
-			}
+					if(reaction.emoji.name == '🆖') return dictTimeout(message, 0, 1);
+				};
+			};
 			if(reaction.emoji.name == '2️⃣') {
 				dictEditFlag = false;
 				const dict = new sqlite3.Database("./dictionary.db");
@@ -371,7 +369,7 @@ client.on('interactionCreate', async interaction => {
 					let delfilter = m => m.author.id == interaction.member.user.id;
 					let channel = await client.channels.cache.get(interaction.channelId)
 					let textfrom = await awaitMsgResponse(channel, delfilter)
-					if(textfrom == null) dictTimeout(checkmsg, 1, 0)
+					if(textfrom == null) return dictTimeout(checkmsg, 1, 0);
 					if(!textcheck.includes(textfrom)) {
 						collectedfour.first().delete()
 						let embed45 = new Discord.MessageEmbed()
