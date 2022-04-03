@@ -1,23 +1,42 @@
 const Discord = require('discord.js');
 const {ClientApplication} = require('discord.js');
-var request = require('request');
-const fs = require('fs');
+
 const client = new Discord.Client({intents: [Object.keys(Discord.Intents.FLAGS)], partials: ['MESSAGE', 'CHANNEL', 'REACTION']});
 const { joinVoiceChannel, getVoiceConnection, createAudioPlayer, NoSubscriberBehavior, AudioPlayerStatus, createAudioResource } = require('@discordjs/voice');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const config = require("./config.json");
-const datajson = require("./data.json");
+
 const sqlite3 = require('sqlite3');
-var connection;
+const request = require('request');
+const fs = require('fs');
+
+let connection;
 let dictEditFlag = false;
 let readFlag = false;
-prefix = new RegExp(config.prefix);
+
 let voiceQueue = new Array();
 let voiceCon = new Array();
 let voiceUID = new Array();
 
+if(!fs.existsSync('config.json')) {
+	const origjson = {
+		"prefix": ">",
+		"token": "Discord Bot Token",
+		"vtapi": "VoiceText API Key",
+		"botowner": "Bot Owner userID",
+		"textlimit": 55
+	}
+	fs.writeFileSync("config.json", json.stringify(origjson, null, '	'));
+	console.log('config.json Generated.')
+}
+
+const config = require("./config.json");
+const datajson = require("./data.json");
+
+
+prefix = new RegExp(config.prefix);
+
 client.once("ready", async () => {
-	console.log('VOICE_SYSTEM Started.')
+	console.log('Starting VOICE_SYSTEM...')
 	const cmd =  new SlashCommandBuilder()
 		.setName('gray')
 		.setDescription('GrayBot Slash Commands(Beta)')
@@ -37,13 +56,18 @@ client.once("ready", async () => {
 	client.application.commands.set(commands);
 	console.log('Startup Command Registration Success!')
 	
-	console.log('Init/Check Dictionary DB')
-	const dict = new sqlite3.Database("./dictionary.db");
-	await dict.run("create table if not exists dict(serverId,textfrom,textto)");
-	await dict.close()
+	if(!fs.existsSync('./dictionary.db')) {
+		console.log('Init Dictionary DB')
+		const dict = new sqlite3.Database("./dictionary.db");
+		await dict.run("create table if not exists dict(serverId,textfrom,textto)");
+		await dict.close()
+	}
+	
+	console.log('VOICE_SYSTEM Started.')
+	
 	setInterval(() => {
 		client.user.setActivity({
-			name: `/gray | ${client.guilds.cache.size}servers / Copyright 2022 WhitePaper`
+			name: `/gray | ${client.guilds.cache.size}servers / © 2022 WhitePaper`
 		})
 	}, 5000)
 });
@@ -85,7 +109,7 @@ async function editText(text, serverId) {
 async function playVoice(message,userData,con,serverId){
     if(readFlag == false) {
 		readFlag = true
-		var voiceConnection = await con
+		let voiceConnection = await con
 		if (voiceConnection) {
 			if(voiceQueue.length>0) voiceQueue.shift();
 			if(voiceCon.length>0) voiceCon.shift();
@@ -168,7 +192,7 @@ client.on('interactionCreate', async interaction => {
 		const voiceChannel = user.voice.channel;
 		if (!user.voice.channel || user.voice.channel == null) return interaction.editReply('ボイスチャンネルに参加してから実行してねっ！');
 		if(datajson.find((popo)=>popo.guild_id == interaction.guildId)) {
-			var guildData = datajson.find((popo)=>popo.guild_id == interaction.guildId)
+			let guildData = datajson.find((popo)=>popo.guild_id == interaction.guildId)
 			guildData.speak_channel = interaction.channelId
 			fs.writeFileSync("./data.json" , JSON.stringify(datajson, null, ' '));
 			delete require.cache[require.resolve("./data.json")];
@@ -189,7 +213,7 @@ client.on('interactionCreate', async interaction => {
 		const user = guild.members.cache.get(interaction.member.user.id);
 		connection = getVoiceConnection(guild.id);
 		connection.destroy();
-		var guildData = datajson.find((popo)=>popo.guild_id == interaction.guildId)
+		let guildData = datajson.find((popo)=>popo.guild_id == interaction.guildId)
 		guildData.speak_channel = null
 		fs.writeFileSync("./data.json" , JSON.stringify(datajson, null, ' '));
 		delete require.cache[require.resolve("./data.json")];
@@ -197,13 +221,13 @@ client.on('interactionCreate', async interaction => {
 	}
 	if(commandName == 'voc') {
 		if(datajson.find((popo)=>popo.user_id == interaction.member.user.id)) {
-			var speakernum = Math.floor( Math.random() * 5 );
-			var emotionnum = Math.floor( Math.random() * 3 );
-			var emotion_level = 1 + Math.floor( Math.random() * 4 );
-			var pitch = 50 + Math.floor( Math.random() * 150 );
+			let speakernum = Math.floor( Math.random() * 5 );
+			let emotionnum = Math.floor( Math.random() * 3 );
+			let emotion_level = 1 + Math.floor( Math.random() * 4 );
+			let pitch = 50 + Math.floor( Math.random() * 150 );
 			const speaker = ["haruka","hikari","takeru","santa","bear"]
 			const emotion = ["happiness","anger","sadness"]
-			var userData = datajson.find((popo)=>popo.user_id == interaction.member.user.id)
+			let userData = datajson.find((popo)=>popo.user_id == interaction.member.user.id)
 			userData.speaker = speaker[speakernum]
 			userData.emotion = emotion[emotionnum]
 			userData.emotion_level = emotion_level 
@@ -398,7 +422,7 @@ client.on('interactionCreate', async interaction => {
 client.on('messageCreate', async message => {
 	if(message.author.bot) return;
 	const voiceChannel = message.member.voice.channel;
-	var guildData = datajson.find((popo)=>popo.guild_id == message.guild.id)
+	let guildData = datajson.find((popo)=>popo.guild_id == message.guild.id)
 	if (datajson.find((popo)=>popo.guild_id == message.guild.id)) {
 		if (message.channel.id === guildData.speak_channel) {
 			const voiceChannel = message.member.voice.channel;
@@ -407,10 +431,10 @@ client.on('messageCreate', async message => {
 			if(datajson.find((popo)=>popo.user_id == message.author.id)) {
 				if (message.content.match(prefix)) return;
 			} else {
-				var speakernum = Math.floor( Math.random() * 5 );
-				var emotionnum = Math.floor( Math.random() * 3 );
-				var emotion_level = 1 + Math.floor( Math.random() * 4 );
-				var pitch = 50 + Math.floor( Math.random() * 150 );
+				let speakernum = Math.floor( Math.random() * 5 );
+				let emotionnum = Math.floor( Math.random() * 3 );
+				let emotion_level = 1 + Math.floor( Math.random() * 4 );
+				let pitch = 50 + Math.floor( Math.random() * 150 );
 				const speaker = ["haruka","hikari","takeru","santa","bear"]
 				const emotion = ["happiness","anger","sadness"]
 				datajson.push({"user_id":message.author.id,"speaker":speaker[speakernum],"emotion":emotion[emotionnum],"emotion_level":emotion_level,"pitch":pitch});
