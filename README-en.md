@@ -2,6 +2,8 @@
 
 **GrayBot-Voice** is a TTS bot using VoiceText Web API for Discord.
 
+日本語版は[こちら](https://github.com/WhitePaper-Network/GrayBot-Voice/blob/main/README.md)
+
 ## Setup
 
 1. Download from Github
