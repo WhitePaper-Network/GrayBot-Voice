@@ -2,6 +2,8 @@
 
 **GrayBot-Voice**は、全く新しいTTS Botです。 このボットは、声の種類が豊富なVoiceText Web APIを使っています。
 
+English version is [here](https://github.com/WhitePaper-Network/GrayBot-Voice/blob/main/README-en.md)
+
 ## セットアップ
 
 1. Githubからダウンロード
