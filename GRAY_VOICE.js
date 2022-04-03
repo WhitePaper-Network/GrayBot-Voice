@@ -62,7 +62,7 @@ async function editText(text, serverId) {
 			for (let i = 0; i < rows.length; i++) {
 				if(serverId === rows[i].serverId) {
 					if(texttmp.includes(rows[i].textfrom)) {
-						texttmp = texttmp.replace(rows[i].textfrom, rows[i].textto)
+						texttmp = texttmp.replace(new RegExp(rows[i].textfrom,"g"), rows[i].textto);
 					}
 				}
 			};
