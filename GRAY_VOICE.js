@@ -25,8 +25,9 @@ if(!fs.existsSync('config.json')) {
 		"botowner": "Bot Owner userID",
 		"textlimit": 55
 	}
-	fs.writeFileSync("config.json", json.stringify(origjson, null, '	'));
+	fs.writeFileSync("config.json", JSON.stringify(origjson, null, '	'));
 	console.log('config.json Generated.')
+	return;
 }
 
 const config = require("./config.json");
