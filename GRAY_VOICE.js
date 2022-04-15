@@ -19,7 +19,6 @@ let voiceUID = new Array();
 
 if(!fs.existsSync('config.json')) {
 	const origjson = {
-		"prefix": ">",
 		"token": "Discord Bot Token",
 		"vtapi": "VoiceText API Key",
 		"botowner": "Bot Owner userID",
@@ -32,9 +31,6 @@ if(!fs.existsSync('config.json')) {
 
 const config = require("./config.json");
 const datajson = require("./data.json");
-
-
-prefix = new RegExp(config.prefix);
 
 client.once("ready", async () => {
 	console.log('Starting VOICE_SYSTEM...')
@@ -115,7 +111,8 @@ async function playVoice(message,userData,con,serverId){
 			if(voiceQueue.length>0) voiceQueue.shift();
 			if(voiceCon.length>0) voiceCon.shift();
 			if(voiceUID.length>0) voiceUID.shift();
-			const edit = await editText(message.content, serverId);
+			let edit = await editText(message.content, serverId);
+			if(message.attachments.size) edit = message.member.displayName + 'が添付ファイルを送信しました。' + edit;
 			const data = `text=${edit}
 			&speaker=${userData.speaker}
 			&emotion=${userData.emotion}
