@@ -116,7 +116,11 @@ async function playVoice(message,userData,con,serverId){
 			if(voiceCon.length>0) voiceCon.shift();
 			if(voiceUID.length>0) voiceUID.shift();
 			const edit = await editText(message.content, serverId);
-			const data = `text=${edit}&speaker=${userData.speaker}&emotion=${userData.emotion}&emotion_level=${userData.emotion_level}&pitch=${userData.pitch}&speed=110`;
+			const data = `text=${edit}
+			&speaker=${userData.speaker}
+			&emotion=${userData.emotion}
+			&emotion_level=${userData.emotion_level}
+			&pitch=${userData.pitch}&speed=110`;
 			const options = {
 				url: 'https://api.voicetext.jp/v1/tts',
 				headers: {
@@ -186,10 +190,10 @@ async function awaitReactResponse(message, filter) {
 client.on('interactionCreate', async interaction => {
 	const commandName = interaction.options._hoistedOptions[0].value
 	await interaction.deferReply();
+	const guild = client.guilds.cache.get(interaction.guildId);
+	const user = guild.members.cache.get(interaction.member.user.id);
 	if(commandName == 'join') {
 		if(interaction.member.voice.channel == null) return interaction.editReply('ボイスチャンネルに参加してから実行してねっ！');
-		const guild = client.guilds.cache.get(interaction.guildId);
-		const user = guild.members.cache.get(interaction.member.user.id);
 		const voiceChannel = user.voice.channel;
 		if (!user.voice.channel || user.voice.channel == null) return interaction.editReply('ボイスチャンネルに参加してから実行してねっ！');
 		if(datajson.find((popo)=>popo.guild_id == interaction.guildId)) {
@@ -210,8 +214,6 @@ client.on('interactionCreate', async interaction => {
 		interaction.editReply('やっほー！')
 	}
 	if(commandName == 'leave') {
-		const guild = client.guilds.cache.get(interaction.guildId);
-		const user = guild.members.cache.get(interaction.member.user.id);
 		connection = getVoiceConnection(guild.id);
 		connection.destroy();
 		let guildData = datajson.find((popo)=>popo.guild_id == interaction.guildId)
@@ -221,7 +223,7 @@ client.on('interactionCreate', async interaction => {
 		interaction.editReply('さよーならー！')
 	}
 	if(commandName == 'voc') {
-		if(datajson.find((popo)=>popo.user_id == interaction.member.user.id)) {
+		if(datajson.find((popo)=>popo.user_id == user.id)) {
 			let speakernum = Math.floor( Math.random() * 5 );
 			let emotionnum = Math.floor( Math.random() * 3 );
 			let emotion_level = 1 + Math.floor( Math.random() * 4 );
@@ -426,12 +428,9 @@ client.on('messageCreate', async message => {
 	let guildData = datajson.find((popo)=>popo.guild_id == message.guild.id)
 	if (datajson.find((popo)=>popo.guild_id == message.guild.id)) {
 		if (message.channel.id === guildData.speak_channel) {
-			const voiceChannel = message.member.voice.channel;
 			if (!voiceChannel) return;
 			let userData = datajson.find((popo)=>popo.user_id == message.author.id)
-			if(datajson.find((popo)=>popo.user_id == message.author.id)) {
-				if (message.content.match(prefix)) return;
-			} else {
+			if(!datajson.find((popo)=>popo.user_id == message.author.id)) {
 				let speakernum = Math.floor( Math.random() * 5 );
 				let emotionnum = Math.floor( Math.random() * 3 );
 				let emotion_level = 1 + Math.floor( Math.random() * 4 );
@@ -442,7 +441,6 @@ client.on('messageCreate', async message => {
 				userData = datajson.find((popo)=>popo.user_id == message.author.id)
 				fs.writeFileSync("./data.json" , JSON.stringify(datajson, null, ' '));
 				delete require.cache[require.resolve("./data.json")];
-				if (message.content.match(prefix)) return;
 			}
 			let con = await joinVoiceChannel({
 				channelId: voiceChannel.id,
