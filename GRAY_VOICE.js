@@ -41,12 +41,8 @@ client.once("ready", async () => {
 			option.setName('action')
 				.setDescription('実行するコマンド')
 				.setRequired(true)
-				.addChoice('join', 'join')
-				.addChoice('leave', 'leave')
-				.addChoice('voc', 'voc')
-				.addChoice('help', 'help')
-				.addChoice('invite', 'invite')
-				.addChoice('dicedit', 'dicedit'))
+				.addChoices({ name: 'join', value: 'join' }, { name: 'leave', value: 'leave' }, { name: 'voc', value: 'voc' }, { name: 'help', value: 'help' }, { name: 'invite', value: 'invite' }, { name: 'dicedit', value: 'dicedit'}),
+		);
 	const commands = [cmd];
 	client.application = new ClientApplication(client, {});
 	await client.application.fetch();
