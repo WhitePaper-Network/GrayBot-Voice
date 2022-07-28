@@ -17,18 +17,6 @@ let voiceQueue = new Array();
 let voiceCon = new Array();
 let voiceUID = new Array();
 
-if(!fs.existsSync('config.json')) {
-	const origjson = {
-		"token": "Discord Bot Token",
-		"vtapi": "VoiceText API Key",
-		"botowner": "Bot Owner userID",
-		"textlimit": 55
-	}
-	fs.writeFileSync("config.json", JSON.stringify(origjson, null, '	'));
-	console.log('config.json Generated.')
-	return;
-}
-
 const config = require("./config.json");
 const datajson = require("./data.json");
 
