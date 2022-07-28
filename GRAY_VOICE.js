@@ -249,10 +249,16 @@ client.on('interactionCreate', async interaction => {
 		interaction.editReply({embeds: [helpembed] })
 	}
 	if(commandName == 'invite') {
-		const inviteembed = new Discord.MessageEmbed()
-			.setTitle('BOT招待リンク')
-			.setDescription(`Botを招待するには、[こちら](https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=3164160&scope=bot%20applications.commands) \n` +
-			`もしくは以下のリンクをクリックしてください。  https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=3164160&scope=bot%20applications.commands`)
+		let inviteembed;
+		if(config.botinvite) {
+			inviteembed = new Discord.MessageEmbed()
+				.setTitle('BOT招待リンク')
+				.setDescription(`Botを招待するには、[こちら](https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=3164160&scope=bot%20applications.commands) \n` +
+				`もしくは以下のリンクをクリックしてください。  https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=3164160&scope=bot%20applications.commands`)
+		} else {
+			inviteembed = new Discord.MessageEmbed()
+				.setTitle("このbotでは招待が無効化されています。")
+		}
 		interaction.editReply({embeds: [inviteembed] })
 	}
 	
