@@ -6,7 +6,7 @@ English version is [here](https://github.com/WhitePaper-Network/GrayBot-Voice/bl
 
 ## セットアップ
 
-1. Githubからダウンロード
+1. GitHubからダウンロード
 2. npmでモジュールを入れる
 3. config.jsonを編集する
 4. GRAY_VOICE.jsを実行する
