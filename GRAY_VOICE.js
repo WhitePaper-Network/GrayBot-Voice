@@ -96,7 +96,7 @@ async function playVoice(message,userData,con,serverId){
 			if(voiceCon.length>0) voiceCon.shift();
 			if(voiceUID.length>0) voiceUID.shift();
 			let edit = await editText(message.content, serverId);
-			if(message.attachments.size) edit = message.member.displayName + 'が添付ファイルを送信しました。' + edit;
+			if(message.attachments.size > 0) edit = message.member.displayName + 'が添付ファイルを送信しました。' + edit;
 			const data = `text=${edit}
 			&speaker=${userData.speaker}
 			&emotion=${userData.emotion}
