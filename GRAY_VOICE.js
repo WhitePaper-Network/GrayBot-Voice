@@ -97,11 +97,11 @@ async function playVoice(message,userData,con,serverId){
 			if(voiceUID.length>0) voiceUID.shift();
 			let edit = await editText(message.content, serverId);
 			if(message.attachments.size > 0) edit = message.member.displayName + 'が添付ファイルを送信しました。' + edit;
-			const data = `text=${edit}
-			&speaker=${userData.speaker}
-			&emotion=${userData.emotion}
-			&emotion_level=${userData.emotion_level}
-			&pitch=${userData.pitch}&speed=110`;
+			const data = `text=${edit}`+
+			`&speaker=${userData.speaker}`+
+			`&emotion=${userData.emotion}`+
+			`&emotion_level=${userData.emotion_level}`+
+			`&pitch=${userData.pitch}&speed=110`;
 			const options = {
 				url: 'https://api.voicetext.jp/v1/tts',
 				headers: {
