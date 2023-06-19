@@ -1,0 +1,11 @@
+{
+	"token": "",
+	"vtapi": "",
+	"cmdName": "gray",
+	"botowner": "discord userid",
+	"textlimit": 55,
+	"botinvite": false,
+	"helptext": "",
+	"status_text": "",
+	"db": "sqlite"
+}
