@@ -72,6 +72,11 @@ client.on("ready", async () => {
 				.setName("change_voice")
 				.setDescription("声を変更します")
 		)
+        .addSubcommand(subcommand =>
+			subcommand
+				.setName("settings")
+				.setDescription("設定を変更します")
+		)
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName("help")

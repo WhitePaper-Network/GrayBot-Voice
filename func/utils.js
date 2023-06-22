@@ -1,3 +1,4 @@
+const {ActionRowBuilder, ButtonBuilder} = require("discord.js")
 module.exports = {
 	async GenMessageButton(buttonname, style, customid, Bt2, disabledflag) {
 		return new Promise(async (resolve, reject) => {
