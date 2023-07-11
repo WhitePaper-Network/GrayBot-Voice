@@ -171,6 +171,7 @@ client.on("interactionCreate", async interaction => {
 				readData[guildId] = {};
 				readData[guildId].userData = {};
 				readData[guildId].joined = false;
+				readData[guildId].tChannelIds = [];
 			};
 			
 			if(!readData[guildId].tChannelIds.includes(interaction.channelId)) {
