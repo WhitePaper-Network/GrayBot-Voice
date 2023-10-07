@@ -34,17 +34,25 @@ module.exports = {
 					}
 				};
 			
-				if (texttmp.length > config.textlimit) {
-					let sliced = texttmp.slice(0, config.textlimit);
-					texttmp = sliced + "、以下略"
-				}
+				
 				texttmp = texttmp.replace(/https?:\/\/\S+/g, '');
 				const url = texttmp.match(/https?:\/\/\S+/);
 				if(url) texttmp = `URL省略${texttmp}`;
 				texttmp = texttmp.replace('　', "、");
 				texttmp = texttmp.replace(' ', "、");
+				
+				texttmp = texttmp.replace(/<:\w*:\d*>/g, "");
+				texttmp = texttmp.replace(/<a:\w*:\d*>/g, "");
+				texttmp = texttmp.replace(/<@\d*>/g, "");
+				
+				if (texttmp.length > config.textlimit) {
+					let sliced = texttmp.slice(0, config.textlimit);
+					texttmp = sliced + "、以下略"
+				}
+				
 				resolve(texttmp);
 			})
+			
 		})
 	}
 }
