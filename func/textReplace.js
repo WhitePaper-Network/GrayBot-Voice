@@ -40,6 +40,7 @@ module.exports = {
 				if(url) texttmp = `URL省略${texttmp}`;
 				texttmp = texttmp.replace('　', "、");
 				texttmp = texttmp.replace(' ', "、");
+				texttmp = texttmp.replace('%', "パーセント");
 				
 				texttmp = texttmp.replace(/<:\w*:\d*>/g, "");
 				texttmp = texttmp.replace(/<a:\w*:\d*>/g, "");

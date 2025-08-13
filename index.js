@@ -103,9 +103,9 @@ client.on("ready", async () => {
 	setInterval(() => {
 		let stat;
 		if(!config.status_text) {
-			stat = `/${config.cmdName} | ${client.guilds.cache.size}servers / © 2023 WhitePaper`;
+			stat = `/${config.cmdName} | ${client.guilds.cache.size}servers / © 2024 WhitePaper`;
 		} else {
-			stat = `/${config.cmdName} | ${client.guilds.cache.size}servers / © 2023 WhitePaper / ${config.status_text}`;
+			stat = `/${config.cmdName} | ${client.guilds.cache.size}servers / © 2024 WhitePaper / ${config.status_text}`;
 		};
 		client.user.setActivity({
 			name: stat
@@ -171,6 +171,7 @@ client.on("interactionCreate", async interaction => {
 				readData[guildId] = {};
 				readData[guildId].userData = {};
 				readData[guildId].joined = false;
+				readData[guildId].disableRandomize = false;
 				readData[guildId].tChannelIds = [];
 			};
 			

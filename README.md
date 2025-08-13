@@ -5,6 +5,8 @@ VoiceText Web APIを使ったDiscord通話チャット読み上げボット
 
 ```
 $ npm i
+$ mv config-example.json config.json
+$ vim config.json
 $ node index.js
 ```
 ## Notification

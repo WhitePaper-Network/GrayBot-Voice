@@ -3,10 +3,9 @@ const { createAudioPlayer,
 		AudioPlayerStatus,
 		createAudioResource 
 	} = require('@discordjs/voice');
-const fetch = require("node-fetch")
-const config = require("../config.json")
-const extlist = require("../extlist.json")
-const fs = require("fs")
+const fetch = require("node-fetch");
+const config = require("../config.json");
+const dataHandler = require("./dataHandler");
 
 module.exports = {
 	async readText(message, readQueue) {
@@ -15,8 +14,10 @@ module.exports = {
 		if(message.attachments && message.attachments.size) {
 			ext = message.attachments.first().url.substring(message.attachments.first().url.lastIndexOf(".") +1);
 		}
-		let readDataJson = JSON.parse(fs.readFileSync("./data.json", "utf-8"))
-		let readData = readDataJson;
+		//let readDataJson = JSON.parse(fs.readFileSync("./data.json", "utf-8"))
+		//let readData = readDataJson;
+
+		const readData = dataHandler.readData()
 		
 		let guildData = readData[message.guildId]
 		let userData = guildData.userData[message.author.id]
